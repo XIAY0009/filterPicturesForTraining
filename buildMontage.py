@@ -16,8 +16,6 @@ import os
 ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--images", required=True,
 	help="path to input directory of images")
-ap.add_argument("-s", "--sample", type=int, default=21,
-	help="# of images to sample")
 args = vars(ap.parse_args())
 
 maskClick = [] 
@@ -32,24 +30,8 @@ namedWindow = "Image"
 def click_and_crop(event, x, y, flags, param):
 	# grab references to the global variables
 	global rectClick
-	# if the left mouse button was clicked, record the starting
-	# (x, y) coordinates and indicate that cropping is being
-	# performed
 	if event == cv2.EVENT_LBUTTONDOWN:
 		rectClick.append((x, y))
-	# check to see if the left mouse button was released
-	#elif event == cv2.EVENT_LBUTTONUP:
-		# record the ending (x, y) coordinates and indicate that
-		# the cropping operation is finished
-		# draw a rectangle around the region of interest
-		#startingPointX = x//eachImageWidth * eachImageWidth + int(eachImageWidth/2)
-		#startingPointY = y//eachImageHeight * eachImageHeight + int(eachImageHeight/2)
-		#cv2.imshow(namedWindow, montage)
-                #key = cv2.waitKey(1) & 0xFF
-                #if key == ord("f"): 
-                #    cv2.putText(montage,'face', (startingPointX, startingPointY), cv2.FONT_HERSHEY_SIMPLEX, 2, (0,255,0), cv2.LINE_AA)
-		#    cv2.circle(montage, (startingPointX, startingPointY), 10, (0,0,255), -1)
-                #    cv2.imshow(namedWindow, montage)
 
 def mask(): 
     global rectClick, maskClick
@@ -170,9 +152,6 @@ displayRow = input ("number of rows of pictures?")
 namedWindow = "Click f for face, click m for mask, click d for discard, click e for exception, click n for next"
 
 
-#random.shuffle(imagePaths)
-#imagePaths = imagePaths[:args["sample"]]
-# initialize the list of images
 images = []
 # loop over the list of image paths
 cv2.namedWindow(namedWindow)
@@ -181,9 +160,7 @@ for imagePath in imagePaths:
 	# load the image and update the list of images
 	image = cv2.imread(imagePath)
 	images.append(image)
-        #file.write("%s\n" % imagePath)
 
-#file.close()
 # construct the montages for the images
 montages = build_montages(images, (128, 196), (displayColumn, displayRow))
 eachImageWidth = 128
