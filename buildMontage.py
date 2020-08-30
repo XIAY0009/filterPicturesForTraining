@@ -64,6 +64,16 @@ def switcherRectToType(argument):
 def createList(startIndex, endIndex): 
     return [item for item in range(startIndex, endIndex)]
 
+def clearAll(originalImage):
+    global maskClick, faceClick, discardClick, naClick, rectClick, imageClick
+    maskClick = [] 
+    faceClick = [] 
+    discardClick = []
+    naClick = [] 
+    rectClick = [] 
+    imageClick = []
+    cv2.imshow("image", originalImage)
+
 def writeToFile(fileName, allImages, imageCounter, imageHop, eachImageWidth, eachImageHeight, displayColumn, displayRow, flag):
     if flag == 0: 
         file = open(fileName, "a+")
@@ -208,6 +218,7 @@ for montage in montages:
         discardClick = []
         imageClick = []
         cv2.imshow(namedWindow, montage)
+        originalImage = montage.copy()
         imageCounter += 1
         while True: 
 	    key = cv2.waitKey(0)
@@ -219,7 +230,9 @@ for montage in montages:
                 drawOut("na")
             elif key == ord("d"): 
                 drawOut("discard")               
-            
+            elif key == ord("r"): 
+                clearAll(originalImage)
+                montage = originalImage
             elif key == 32: 
                 saveFiles(imagePaths, imageCounter, imageHop, eachImageWidth, eachImageHeight, displayColumn, displayRow);
                 break
