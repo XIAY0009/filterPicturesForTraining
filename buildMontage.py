@@ -23,6 +23,7 @@ faceClick = []
 discardClick = [] 
 naClick = [] 
 rectClick = []
+imageClick = []
 eachImageWidth = 0
 eachImageHeight = 0
 namedWindow = "Image"
@@ -59,6 +60,9 @@ def switcherRectToType(argument):
     }
     func = switcher.get(argument, lambda: "Invalid classification")
     func()
+
+def createList(startIndex, endIndex): 
+    return [item for item in range(startIndex, endIndex)]
 
 def writeToFile(fileName, allImages, imageCounter, imageHop, eachImageWidth, eachImageHeight, displayColumn, displayRow, flag):
     if flag == 0: 
@@ -121,6 +125,32 @@ def writeToFile(fileName, allImages, imageCounter, imageHop, eachImageWidth, eac
             print("image to be stored: ", storeImage)
             file.write("%s\n" % storeImage)
         file.close()
+    elif flag == 4: 
+        file = open(fileName, "a+")
+        #Finds out all the index that should be stored in this photo 
+        startSave = imageCounter * imageHop
+        endSave = (imageCounter+1)*imageHop
+        if (endSave > len(allImages)): 
+            endSave = len(allImages)
+        print ("imageHop: ", imageHop)
+        allIndexForImage = createList(startSave, endSave)
+        print ("allIndexForImage: ", allIndexForImage)
+        for noSave in imageClick:
+            x = noSave[0]//eachImageWidth
+            y = noSave[1]//eachImageHeight
+            #Computes the position in the grid
+            position = y * displayColumn + x
+            print ("grid position: ", position)
+            position += imageCounter * imageHop
+            print ("total grid position: ", position)
+            allIndexForImage.remove(position)
+        for eachSave in allIndexForImage: 
+            #Finds the right image 
+            storeImage = allImages[eachSave]
+            print("image to be stored for the default: ", storeImage)
+            file.write("%s\n" % storeImage)
+        file.close()
+
 
 def saveFiles(allImages, imageCounter, imageHop, eachImageWidth, eachImageHeight, displayColumn, displayRow):
     global maskClick, faceClick, discardClick, naClick
@@ -128,10 +158,13 @@ def saveFiles(allImages, imageCounter, imageHop, eachImageWidth, eachImageHeight
     writeToFile("faceFile.txt", allImages, imageCounter, imageHop, eachImageWidth, eachImageHeight, displayColumn, displayRow, 1)
     writeToFile("naFile.txt", allImages, imageCounter, imageHop, eachImageWidth, eachImageHeight, displayColumn, displayRow, 2)
     writeToFile("discardFile.txt", allImages, imageCounter, imageHop, eachImageWidth, eachImageHeight, displayColumn, displayRow, 3)
+    #300820 Assuming that maskFile.txt is the default file to save images in 
+    writeToFile("maskFile.txt", allImages, imageCounter, imageHop, eachImageWidth, eachImageHeight, displayColumn, displayRow, 4)
 
 def drawOut(typeObject): 
-    global rectClick
+    global rectClick, imageClick
     switcherRectToType(typeObject)
+    imageClick.extend(rectClick)
     for eachPair in rectClick: 
        x = eachPair[0]
        y = eachPair[1]
@@ -141,7 +174,6 @@ def drawOut(typeObject):
        cv2.circle(montage, (startingPointX, startingPointY), 10, (0,0,255), -1)
        cv2.imshow("image", montage)
        rectClick = []
-
 
 imagePaths = list(paths.list_images(args["images"]))
 #check the number of images in the directory 
@@ -174,6 +206,7 @@ for montage in montages:
         faceClick = [] 
         naClick = [] 
         discardClick = []
+        imageClick = []
         cv2.imshow(namedWindow, montage)
         imageCounter += 1
         while True: 
@@ -186,7 +219,7 @@ for montage in montages:
                 drawOut("na")
             elif key == ord("d"): 
                 drawOut("discard")               
-
+            
             elif key == 32: 
                 saveFiles(imagePaths, imageCounter, imageHop, eachImageWidth, eachImageHeight, displayColumn, displayRow);
                 break
